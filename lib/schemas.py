@@ -31,10 +31,18 @@ class CharacterList(BaseModel):
     name: str
     rarity: str
     profession: str
+    skins: List[SkinDTO] = []  # 추가
 
     class Config:
         from_attributes = True
-
+    
+    # 대표 portrait URL 추가
+    @computed_field
+    def portrait_url(self) -> str:
+        if self.skins and len(self.skins) > 0:
+            return self.skins[0].portrait_url
+        return ""
+    
 # 1. 스킨 정보
 class SkinDTO(BaseModel):
     skin_id: str

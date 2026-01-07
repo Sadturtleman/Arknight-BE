@@ -28,13 +28,11 @@ def get_operators(
     rarity: str = Query(None, description="필터: 6 (6성만 보기)"),
     db: Session = Depends(get_db)
 ):
-    query = db.query(model.Character)
-    
-    # 필터링: 레어도 검색 (예: rarity=5 -> rarity가 '5'인 캐릭터)
+    query = db.query(model.Character).options(
+        joinedload(model.Character.skins)  # 스킨 정보 함께 로드
+    )
+
     if rarity:
-        # DB에는 rarity가 '5', 'TIER_5' 등으로 저장되어 있을 수 있으니 확인 필요
-        # 보통 Arknights 데이터는 'rarity_5' (6성), 'rarity_4' (5성) 식입니다.
-        # 일단 단순 매칭으로 구현
         query = query.filter(model.Character.rarity.like(f"%{rarity}%"))
 
     operators = query.offset(skip).limit(limit).all()
