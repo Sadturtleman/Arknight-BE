@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 ASSET_PORTRAIT_URL = "https://raw.githubusercontent.com/ArknightsAssets/ArknightsAssets2/refs/heads/cn/assets/dyn/arts/charportraits"
 ASSET_AVATAR_URL = "https://raw.githubusercontent.com/Aceship/Arknight-Images/master/avatars"
+ASSET_ITEM_URL = "https://raw.githubusercontent.com/Aceship/Arknight-Images/master/items"
 
 
 # 1. 아이템 정보 (내부용)
@@ -11,9 +12,16 @@ class ItemDTO(BaseModel):
     item_id: str
     name: Optional[str] = None
     rarity: Optional[int] = 0
+    icon_id: Optional[str] = None  # DB에서 가져온 icon_id 추가
+
+    @computed_field
+    def icon_url(self) -> str:
+        # icon_id가 있으면 그것을 사용하고, 없으면 item_id를 사용
+        target_id = self.icon_id if self.icon_id else self.item_id
+        return f"https://raw.githubusercontent.com/Aceship/Arknight-Images/master/items/{target_id}.png"
 
     class Config:
-        from_attributes = True  # ORM 객체를 Pydantic으로 변환 허용
+        from_attributes = True
 
 # 2. 재료 소모 정보
 class ConsumptionDTO(BaseModel):
