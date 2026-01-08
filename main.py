@@ -9,7 +9,7 @@ from lib.database import get_db
 app = FastAPI(title="Arknights KR API", description="명일방주 한국 서버 데이터 API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 실제 배포시엔 프론트 도메인만 허용 권장
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
