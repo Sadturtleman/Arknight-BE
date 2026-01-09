@@ -29,4 +29,5 @@ jobs:
             uv sync --no-dev
             
             # 3. 서버 재시작
+            sudo systemctl daemon-reload
             sudo systemctl restart arknight
