@@ -1,130 +1,111 @@
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, ConfigDict, field_validator
 from typing import List, Optional
 from urllib.parse import quote
+from lib.model import ProfessionEnum, ConsumptionTypeEnum
 
+# 정적 자산 URL 설정
 ASSET_PORTRAIT_URL = "https://raw.githubusercontent.com/ArknightsAssets/ArknightsAssets2/refs/heads/cn/assets/dyn/arts/charportraits"
 ASSET_AVATAR_URL = "https://raw.githubusercontent.com/Aceship/Arknight-Images/master/avatars"
 ASSET_ITEM_URL = "https://raw.githubusercontent.com/Aceship/Arknight-Images/master/items"
 
-
-# 1. 아이템 정보 (내부용)
+# 1. 아이템 정보
 class ItemDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     item_id: str
     name: Optional[str] = None
-    rarity: Optional[int] = 0
-    icon_id: Optional[str] = None  # DB에서 가져온 icon_id 추가
+    rarity: int = 0
+    icon_id: Optional[str] = None
 
     @computed_field
     def icon_url(self) -> str:
-        # icon_id가 있으면 그것을 사용하고, 없으면 item_id를 사용
         target_id = self.icon_id if self.icon_id else self.item_id
-        return f"https://raw.githubusercontent.com/Aceship/Arknight-Images/master/items/{target_id}.png"
+        return f"{ASSET_ITEM_URL}/{target_id}.png"
 
-    class Config:
-        from_attributes = True
-
-# 2. 재료 소모 정보
-class ConsumptionDTO(BaseModel):
-    type: str
-    level: int
-    count: int
-    item: ItemDTO  # 위에 정의한 아이템 정보 포함
-
-    class Config:
-        from_attributes = True
-
-# 4. 캐릭터 목록용 (가볍게)
-class CharacterList(BaseModel):
-    char_id: str
-    name: str
-    rarity: str
-    profession: str
-    skins: List[SkinDTO] = []  # 추가
-
-    class Config:
-        from_attributes = True
-    
-    # 대표 portrait URL 추가
-    @computed_field
-    def portrait_url(self) -> str:
-        if self.skins and len(self.skins) > 0:
-            return self.skins[0].portrait_url
-        return ""
-    
-# 1. 스킨 정보
+# 2. 스킨 정보
 class SkinDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     skin_id: str
     name: Optional[str] = None
     group_name: Optional[str] = None
     illust_id: Optional[str] = None
     avatar_id: Optional[str] = None
-    portrait_id: Optional[str] = None  # DB에 있는 portrait_id 필드 추가
-    drawer_list: Optional[List[str]] = []
+    portrait_id: Optional[str] = None
+    # None이 들어와도 빈 리스트로 처리되도록 validator 추가 혹은 타입 수정
+    drawer_list: Optional[List[str]] = Field(default_factory=list) 
 
-    class Config:
-        from_attributes = True
-
-    # 전신 일러스트 URL (portrait_id 기준)
+    @field_validator('drawer_list', mode='before')
+    @classmethod
+    def allow_none_for_list(cls, v):
+        return v if v is not None else []
+    
     @computed_field
     def portrait_url(self) -> str:
-        # 1순위: portrait_id 사용 (데이터가 제일 깔끔함)
-        target_id = self.portrait_id
-        
-        # 2순위: 없으면 illust_id에서 'illust_' 떼고 사용
-        if not target_id and self.illust_id:
-            target_id = self.illust_id.replace("illust_", "")
-            
-        if not target_id:
-            return ""
+        target_id = self.portrait_id or (self.illust_id.replace("illust_", "") if self.illust_id else None)
+        if not target_id: return ""
+        return f"{ASSET_PORTRAIT_URL}/{quote(target_id)}.png"
 
-        # URL 인코딩 (특수문자 # 처리)
-        encoded_id = quote(target_id)
-        return f"{ASSET_PORTRAIT_URL}/{encoded_id}.png"
-
-    # 아이콘(Avatar) URL
     @computed_field
     def avatar_url(self) -> str:
-        if not self.avatar_id:
-            return ""
-        
-        encoded_id = quote(self.avatar_id)
-        return f"{ASSET_AVATAR_URL}/{encoded_id}.png"
+        if not self.avatar_id: return ""
+        return f"{ASSET_AVATAR_URL}/{quote(self.avatar_id)}.png"
 
-# 2. 스탯 상세 정보 (HP, 공격력 등)
+# 3. 재료 소모 정보
+class ConsumptionDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    type: ConsumptionTypeEnum  # Enum 적용
+    level: int
+    count: int
+    item: ItemDTO
+
+# 4. 스탯 상세 정보
 class AttributeDTO(BaseModel):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
     level: int
     max_hp: int
     atk: int
-    def_: int = Field(alias="def") # DB 컬럼명 매핑
+    def_: int = Field(alias="def")
     magic_resistance: float
     cost: int
     block_cnt: int
+    move_speed: float
+    attack_speed: float
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True # alias 사용 허용
-
-# 3. 정예화 단계별 정보 (Phase)
+# 5. 정예화 단계별 정보
 class PhaseDTO(BaseModel):
-    phase_index: int     # 0, 1, 2 (정예화 단계)
-    max_level: int       # 해당 단계 만렙
-    attributes: List[AttributeDTO] = [] # 해당 단계의 레벨별 스탯 리스트
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    phase_index: int
+    max_level: int
+    attributes: List[AttributeDTO] = []
 
-# 4. 캐릭터 상세 정보 (최종 합체)
-class CharacterDetail(BaseModel):
+# 6. 캐릭터 목록용 (경량화된 스키마)
+class CharacterList(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     char_id: str
     name: str
-    rarity: str
-    profession: str
+    rarity: int
+    profession: ProfessionEnum  # Enum 적용
+    skins: List[SkinDTO] = []
+
+    @computed_field
+    def portrait_url(self) -> str:
+        return self.skins[0].portrait_url if self.skins else ""
+
+# 7. 캐릭터 상세 정보 (모든 관계 포함)
+class CharacterDetail(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    char_id: str
+    name: str
+    rarity: int
+    profession: ProfessionEnum
     description: Optional[str] = None
     
-    # 추가된 정보들
-    skins: List[SkinDTO] = []       # 스킨 목록
-    phases: List[PhaseDTO] = []     # 정예화별 스탯 목록
-    consumptions: List[ConsumptionDTO] = [] # 재료 목록
-
-    class Config:
-        from_attributes = True
+    skins: List[SkinDTO] = []
+    phases: List[PhaseDTO] = []
+    consumptions: List[ConsumptionDTO] = []
