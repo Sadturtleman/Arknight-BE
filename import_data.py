@@ -35,8 +35,9 @@ URLS = {
     "skill": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/skill_table.json",
     "range": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/range_table.json",
     "skin": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/skin_table.json",
-    "uniequip": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/uniequip_table.json",
-    "item": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/item_table.json"
+    "module": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/uniequip_table.json",
+    "item": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/item_table.json",
+    "map" : "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/refs/heads/master/kr/gamedata/excel/stage_table.json"
 }
 
 # 로깅 설정

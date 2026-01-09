@@ -1,0 +1,86 @@
+2026-01-09 14:14:02 - ArknightsETL - INFO - Configuration:
+2026-01-09 14:14:02 - ArknightsETL - INFO - Configuration:
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Database: db.uwykuxiuytgqfwlzlmlf.supabase.co:5432/postgres
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Database: db.uwykuxiuytgqfwlzlmlf.supabase.co:5432/postgres
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Data Directory: C:\Users\rugsn\Documents\GitHub\Arknight-BE\data
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Data Directory: C:\Users\rugsn\Documents\GitHub\Arknight-BE\data
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Batch Size: 500
+2026-01-09 14:14:02 - ArknightsETL - INFO -   Batch Size: 500
+2026-01-09 14:14:02 - ArknightsETL - INFO - ============================================================
+2026-01-09 14:14:02 - ArknightsETL - INFO - ============================================================
+2026-01-09 14:14:02 - ArknightsETL - INFO - Starting Arknights ETL Pipeline
+2026-01-09 14:14:02 - ArknightsETL - INFO - Starting Arknights ETL Pipeline
+2026-01-09 14:14:02 - ArknightsETL - INFO - ============================================================
+2026-01-09 14:14:02 - ArknightsETL - INFO - ============================================================
+2026-01-09 14:14:02 - ArknightsETL - INFO - Step 1: Loading JSON files...
+2026-01-09 14:14:02 - ArknightsETL - INFO - Step 1: Loading JSON files...
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: range_table.json (63 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: range_table.json (63 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: character_table.json (950 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: character_table.json (950 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: skill_table.json (1373 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: skill_table.json (1373 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: item_table.json (13 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: item_table.json (13 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: uniequip_table.json (7 entries)
+2026-01-09 14:14:03 - ArknightsETL - INFO - Loaded JSON: uniequip_table.json (7 entries)
+2026-01-09 14:14:04 - ArknightsETL - INFO - Loaded JSON: stage_table.json (27 entries)
+2026-01-09 14:14:04 - ArknightsETL - INFO - Loaded JSON: stage_table.json (27 entries)
+2026-01-09 14:14:04 - ArknightsETL - INFO - Loaded JSON: skin_table.json (7 entries)
+2026-01-09 14:14:04 - ArknightsETL - INFO - Loaded JSON: skin_table.json (7 entries)
+2026-01-09 14:14:04 - ArknightsETL - INFO - Step 2: Connecting to database...
+2026-01-09 14:14:04 - ArknightsETL - INFO - Step 2: Connecting to database...
+2026-01-09 14:14:04 - ArknightsETL - ERROR - Failed to connect to database: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
+2026-01-09 14:14:04 - ArknightsETL - ERROR - Failed to connect to database: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
+2026-01-09 14:14:04 - ArknightsETL - ERROR - ETL Pipeline failed: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+Traceback (most recent call last):
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 763, in run
+    with self.db_manager as db:
+         ^^^^^^^^^^^^^^^
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 242, in __enter__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 182, in connect
+    self.conn = psycopg2.connect(
+                ~~~~~~~~~~~~~~~~^
+        host=self.config.db_host,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        connect_timeout=10
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rugsn\Documents\GitHub\Arknight-BE\.venv\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
+2026-01-09 14:14:04 - ArknightsETL - ERROR - ETL Pipeline failed: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+Traceback (most recent call last):
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 763, in run
+    with self.db_manager as db:
+         ^^^^^^^^^^^^^^^
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 242, in __enter__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "c:\Users\rugsn\Documents\GitHub\Arknight-BE\sql\arknights_etl.py", line 182, in connect
+    self.conn = psycopg2.connect(
+                ~~~~~~~~~~~~~~~~^
+        host=self.config.db_host,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        connect_timeout=10
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rugsn\Documents\GitHub\Arknight-BE\.venv\Lib\site-packages\psycopg2\__init__.py", line 135, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
+2026-01-09 14:14:04 - ArknightsETL - ERROR - 
+❌ ETL failed: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
+2026-01-09 14:14:04 - ArknightsETL - ERROR - 
+❌ ETL failed: could not translate host name "db.uwykuxiuytgqfwlzlmlf.supabase.co" to address: Unknown server error
+
