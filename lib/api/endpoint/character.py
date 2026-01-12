@@ -11,7 +11,7 @@ from lib.service.character import CharacterService
 from lib.api import deps
 
 # 라우터 경로 및 태그 설정
-router = APIRouter(prefix="/operators", tags=["Operators"])
+router = APIRouter()
 
 @router.get("", response_model=List[CharacterListResponse])
 async def read_characters(
@@ -28,7 +28,6 @@ async def read_characters(
     return await service.get_character_list(skip=skip, limit=limit, rarity=rarity)
 
 @router.get("/{code}/profile", response_model=CharacterProfileResponse)
-@router.get("/{code}", response_model=CharacterProfileResponse)
 async def read_character_profile(
     code: str,
     service: CharacterService = Depends(deps.get_character_service)
