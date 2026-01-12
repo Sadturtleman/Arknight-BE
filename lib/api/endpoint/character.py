@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from lib.schemas.character import (
+    CharacterFullDetailResponse,
     CharacterListResponse, 
     CharacterProfileResponse,
     CharacterSkillDetailResponse,
@@ -9,9 +10,10 @@ from lib.schemas.character import (
 )
 from lib.service.character import CharacterService
 from lib.api import deps
+import asyncio
 
 # 라우터 경로 및 태그 설정
-router = APIRouter(prefix="/operators", tags=["Operators"])
+router = APIRouter()
 
 @router.get("", response_model=List[CharacterListResponse])
 async def read_characters(
@@ -28,7 +30,6 @@ async def read_characters(
     return await service.get_character_list(skip=skip, limit=limit, rarity=rarity)
 
 @router.get("/{code}/profile", response_model=CharacterProfileResponse)
-@router.get("/{code}", response_model=CharacterProfileResponse)
 async def read_character_profile(
     code: str,
     service: CharacterService = Depends(deps.get_character_service)
@@ -76,3 +77,16 @@ async def read_character_modules(
     - Redis Cache: 1시간
     """
     return await service.get_character_modules(code)
+
+@router.get("/{code}/full-detail", response_model=CharacterFullDetailResponse)
+async def read_character_full_detail(
+    code: str,
+    service: CharacterService = Depends(deps.get_character_service)
+):
+    """
+    **[Aggregator] 캐릭터 모든 상세 정보 통합 조회**
+    - Profile, Skills, Growth, Modules를 한 번에 반환합니다.
+    - 내부적으로 Redis Pipelining을 사용하여 네트워크 성능을 극대화했습니다.
+    """
+    # 서비스 레이어에서 1회의 RTT로 모든 데이터를 가져옵니다.
+    return await service.get_character_full_detail(code)

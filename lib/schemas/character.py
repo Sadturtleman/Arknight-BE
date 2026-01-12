@@ -11,35 +11,36 @@ from lib.schemas.item import ItemResponse
 # 1. 스탯 정보
 class CharacterStatResponse(BaseSchema):
     phase: int
-    max_level: int = Field(..., serialization_alias="maxLevel")
-    max_hp: int = Field(..., serialization_alias="maxHp")
-    max_atk: int = Field(..., serialization_alias="maxAtk")
-    max_def: int = Field(..., serialization_alias="maxDef")
+    max_level: int
+    max_hp: int
+    max_atk: int
+    max_def: int
     cost: int
-    block_cnt: int = Field(..., serialization_alias="blockCnt")
-    range_data: Optional[RangeResponse] = Field(None, serialization_alias="rangeData")
+    block_cnt: int
+    range_data: Optional[RangeResponse] = None
 
 # 2. 리스트 조회용 (Lightweight)
 class CharacterListResponse(BaseSchema):
-    character_id: int = Field(..., serialization_alias="characterId")
+    character_id: int
     code: str
-    name_ko: str = Field(..., serialization_alias="nameKo")
+    name_ko: str
     rarity: int
     profession: Optional[ProfessionResponse] = None
-    sub_profession: Optional[SubProfessionResponse] = Field(None, serialization_alias="subProfession")
+    sub_profession: Optional[SubProfessionResponse] = None
+
     model_config = ConfigDict(
-        populate_by_name=True, # 필드명(snake_case)과 별칭(camelCase) 둘 다 허용
-        from_attributes=True   # DB 객체(ORM)에서 직접 읽을 때 필수
+        from_attributes=True,   # DB 객체(ORM)에서 직접 데이터를 읽어올 때 필수
+        populate_by_name=True   # 필드명 그대로 데이터를 넣는 것을 허용
     )
+
     @computed_field
     @property
     def icon_url(self) -> str:
-        # 이전 제안된 CDN URL 빌더 로직 활용
-        return f"https://cdn.jsdelivr.net/gh/fexli/ArknightsResource@main/avatar/{self.code}.png"
+        return f"https://github.com/fexli/ArknightsResource/tree/main/charpack/{self.code}.png"
 
 # 3. 상세 프로필 (API 1: Profile)
 class CharacterProfileResponse(CharacterListResponse):
-    class_description: Optional[str] = Field(None, serialization_alias="classDescription")
+    class_description: Optional[str] = None
     tags: List[TagResponse] = []
     stats: List[CharacterStatResponse] = []
     
@@ -59,11 +60,24 @@ class CharacterSkillCostResponse(BaseSchema):
     item: ItemResponse
 
 class CharacterGrowthResponse(BaseSchema):
-    skill_costs: List[CharacterSkillCostResponse] = Field([], serialization_alias="skillCosts")
-    # 추가 예정인 promotion_costs 등도 여기에 배치
+    skill_costs: List[CharacterSkillCostResponse] = []
 
 # 6. 모듈 및 스토리 (API 4: Modules)
 class CharacterModuleResponse(BaseSchema):
     modules: List[ModuleResponse] = []
-    item_usage: Optional[str] = Field(None, serialization_alias="itemUsage")
-    item_desc: Optional[str] = Field(None, serialization_alias="itemDesc")
+    item_usage: Optional[str] = None
+    item_desc: Optional[str] = None
+
+class CharacterFullDetailResponse(BaseSchema):
+    """
+    **통합 캐릭터 상세 정보 응답 스키마**
+    4개의 도메인 데이터를 하나의 객체로 묶습니다.
+    """
+    profile: CharacterProfileResponse = Field(..., description="캐릭터 기본 프로필")
+    skills: CharacterSkillDetailResponse = Field(..., description="스킬 상세 정보")
+    growth: CharacterGrowthResponse = Field(..., description="육성 및 재료 정보")
+    modules: CharacterModuleResponse = Field(..., description="모듈 및 스토리 정보")
+
+    class Config:
+        # 데이터가 SQLAlchemy 모델일 경우 자동으로 변환되도록 설정
+        from_attributes = True
