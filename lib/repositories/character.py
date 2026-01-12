@@ -2,23 +2,27 @@ from typing import Optional, List
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload, joinedload
 
-from lib.models.character import Character, CharacterStat, CharacterSkillCost
-from lib.models.module import CharacterModule, CharacterModuleCost  # [필수] 모듈 관련 모델 Import
+from lib.models.character import (
+    Character, 
+    CharacterStat, 
+    CharacterSkill, 
+    CharacterSkillCost,
+    CharacterFavorTemplate
+)
+from lib.models.module import CharacterModule, CharacterModuleCost
 from lib.repositories.base import BaseRepository
 
 class CharacterRepository(BaseRepository[Character]):
     def __init__(self, db):
         super().__init__(Character, db)
 
+    # 1. 목록 조회 (가장 가볍게 로드)
     async def get_list(
         self, 
         skip: int = 0, 
         limit: int = 20, 
         rarity: Optional[int] = None
     ) -> List[Character]:
-        """
-        목록 조회 (Lightweight)
-        """
         query = select(Character).options(
             selectinload(Character.profession),
             selectinload(Character.sub_profession)
@@ -27,44 +31,66 @@ class CharacterRepository(BaseRepository[Character]):
         if rarity is not None:
             query = query.where(Character.rarity == rarity)
 
+        # 희귀도 높은 순, 코드 순 정렬
         query = query.order_by(Character.rarity.desc(), Character.code.asc())
         query = query.offset(skip).limit(limit)
 
         result = await self.db.execute(query)
         return result.scalars().all()
 
-    async def get_by_code_with_details(self, code: str) -> Optional[Character]:
-        """
-        상세 조회 (Heavyweight) - 여기가 핵심입니다.
-        """
+    # 2. 프로필 정보 (Profile Domain)
+    async def get_profile(self, code: str) -> Optional[Character]:
         query = (
             select(Character)
             .where(Character.code == code)
             .options(
-                # 1. 기초 정보 (Character -> Profession/Detail/Favor)
                 selectinload(Character.profession),
                 selectinload(Character.sub_profession),
-                selectinload(Character.detail),
-                selectinload(Character.favor),
-                
-                # 2. 스탯 + 사거리 (Character -> CharacterStat -> Range)
-                # [수정 포인트] Character.stats 다음엔 CharacterStat 클래스 사용
-                selectinload(Character.stats)
-                    .selectinload(CharacterStat.range_data), 
-                
-                # 3. 재능 및 태그
+                # 스탯과 그에 딸린 사거리 데이터 로드
+                selectinload(Character.stats).selectinload(CharacterStat.range_data),
                 selectinload(Character.talents),
-                selectinload(Character.tags),
-                
-                # 4. 스킬 (Character -> Skill)
-                selectinload(Character.skill_slots),
-                
-                # 5. 모듈 + 재료 + 아이템 (Character -> Module -> Cost -> Item)
-                # [수정 포인트] 체이닝마다 해당하는 모델 클래스를 써야 합니다.
+                selectinload(Character.tags)
+            )
+        )
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
+    # 3. 스킬 슬롯 정보 (Skill Domain - 코드만 추출하기 위함)
+    async def get_skill_slots(self, code: str) -> Optional[Character]:
+        query = (
+            select(Character)
+            .where(Character.code == code)
+            .options(selectinload(Character.skill_slots))
+        )
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
+    # 4. 성장 및 재료 정보 (Growth Domain)
+    async def get_growth_info(self, code: str) -> Optional[Character]:
+        query = (
+            select(Character)
+            .where(Character.code == code)
+            .options(
+                selectinload(Character.favor),
+                # 스킬 강화 재료와 해당 아이템 정보
+                selectinload(Character.skill_costs)
+                    .selectinload(CharacterSkillCost.item)
+            )
+        )
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
+    # 5. 모듈 및 상세 스토리 (Module Domain)
+    async def get_module_info(self, code: str) -> Optional[Character]:
+        query = (
+            select(Character)
+            .where(Character.code == code)
+            .options(
+                selectinload(Character.detail),
+                # 모듈 -> 모듈 비용 -> 아이템 정보까지 체이닝 로드
                 selectinload(Character.modules)
-                    .selectinload(CharacterModule.costs)        # Module 안에 costs가 있음
-                    .selectinload(CharacterModuleCost.item),    # Cost 안에 item이 있음
-                selectinload(Character.skill_costs).selectinload(CharacterSkillCost.item)
+                    .selectinload(CharacterModule.costs)
+                    .selectinload(CharacterModuleCost.item)
             )
         )
         result = await self.db.execute(query)
