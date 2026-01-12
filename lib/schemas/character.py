@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, ConfigDict
 from lib.schemas.common import (
     BaseSchema, ProfessionResponse, SubProfessionResponse, 
     TagResponse, RangeResponse
@@ -27,7 +27,10 @@ class CharacterListResponse(BaseSchema):
     rarity: int
     profession: Optional[ProfessionResponse] = None
     sub_profession: Optional[SubProfessionResponse] = Field(None, serialization_alias="subProfession")
-
+    model_config = ConfigDict(
+        populate_by_name=True, # 필드명(snake_case)과 별칭(camelCase) 둘 다 허용
+        from_attributes=True   # DB 객체(ORM)에서 직접 읽을 때 필수
+    )
     @computed_field
     @property
     def icon_url(self) -> str:
