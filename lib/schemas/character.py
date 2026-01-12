@@ -67,3 +67,17 @@ class CharacterModuleResponse(BaseSchema):
     modules: List[ModuleResponse] = []
     item_usage: Optional[str] = None
     item_desc: Optional[str] = None
+
+class CharacterFullDetailResponse(BaseSchema):
+    """
+    **통합 캐릭터 상세 정보 응답 스키마**
+    4개의 도메인 데이터를 하나의 객체로 묶습니다.
+    """
+    profile: CharacterProfileResponse = Field(..., description="캐릭터 기본 프로필")
+    skills: CharacterSkillDetailResponse = Field(..., description="스킬 상세 정보")
+    growth: CharacterGrowthResponse = Field(..., description="육성 및 재료 정보")
+    modules: CharacterModuleResponse = Field(..., description="모듈 및 스토리 정보")
+
+    class Config:
+        # 데이터가 SQLAlchemy 모델일 경우 자동으로 변환되도록 설정
+        from_attributes = True
