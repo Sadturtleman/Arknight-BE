@@ -36,7 +36,7 @@ class CharacterListResponse(BaseSchema):
     @computed_field
     @property
     def icon_url(self) -> str:
-        return f"https://cdn.jsdelivr.net/gh/fexli/ArknightsResource@main/avatar/{self.code}.png"
+        return f"https://github.com/fexli/ArknightsResource/tree/main/charpack/{self.code}.png"
 
 # 3. 상세 프로필 (API 1: Profile)
 class CharacterProfileResponse(CharacterListResponse):
