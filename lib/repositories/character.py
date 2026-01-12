@@ -5,9 +5,7 @@ from sqlalchemy.orm import selectinload, joinedload
 from lib.models.character import (
     Character, 
     CharacterStat, 
-    CharacterSkill, 
-    CharacterSkillCost,
-    CharacterFavorTemplate
+    CharacterSkillCost
 )
 from lib.models.module import CharacterModule, CharacterModuleCost
 from lib.repositories.base import BaseRepository
