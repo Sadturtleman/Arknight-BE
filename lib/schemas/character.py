@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Generic, TypeVar
 from pydantic import Field, computed_field, ConfigDict
 from lib.schemas.common import (
     BaseSchema, ProfessionResponse, SubProfessionResponse, 
@@ -7,6 +7,7 @@ from lib.schemas.common import (
 from lib.schemas.skill import SkillResponse
 from lib.schemas.module import ModuleResponse
 from lib.schemas.item import ItemResponse
+import datetime
 
 # 1. 스탯 정보
 class CharacterStatResponse(BaseSchema):
@@ -81,3 +82,13 @@ class CharacterFullDetailResponse(BaseSchema):
     class Config:
         # 데이터가 SQLAlchemy 모델일 경우 자동으로 변환되도록 설정
         from_attributes = True
+
+T = TypeVar("T")
+
+class BaseResponse(BaseSchema, Generic[T]):
+    success: bool = True
+    data: Optional[T] = None
+    status: int = Field(200, description="HTTP code")
+    message: str = "OK"
+
+    server_time: str = Field(default_factory=lambda: datetime.now().isoformat())
