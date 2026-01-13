@@ -46,6 +46,7 @@ dependencies = [
     { name = "redis" },
     { name = "requests" },
     { name = "sqlalchemy" },
+    { name = "starlette" },
     { name = "supabase" },
     { name = "uvicorn" },
 ]
@@ -61,6 +62,7 @@ requires-dist = [
     { name = "redis", specifier = ">=7.1.0" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "sqlalchemy", specifier = ">=2.0.45" },
+    { name = "starlette", specifier = ">=0.50.0" },
     { name = "supabase", specifier = ">=2.27.1" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]
