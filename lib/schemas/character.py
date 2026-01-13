@@ -47,7 +47,9 @@ class CharacterProfileResponse(CharacterListResponse):
     class_description: Optional[str] = None
     tags: List[TagResponse] = []
     stats: List[CharacterStatResponse] = []
-    
+    item_usage: Optional[str] = None
+    item_desc: Optional[str] = None
+
     @computed_field
     @property
     def portrait_url(self) -> str:
@@ -69,8 +71,6 @@ class CharacterGrowthResponse(BaseSchema):
 # 6. 모듈 및 스토리 (API 4: Modules)
 class CharacterModuleResponse(BaseSchema):
     modules: List[ModuleResponse] = []
-    item_usage: Optional[str] = None
-    item_desc: Optional[str] = None
 
 class CharacterFullDetailResponse(BaseSchema):
     """
