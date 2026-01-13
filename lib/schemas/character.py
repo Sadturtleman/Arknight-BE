@@ -12,9 +12,13 @@ from lib.schemas.item import ItemResponse
 class CharacterStatResponse(BaseSchema):
     phase: int
     max_level: int
+    base_hp: int
+    base_atk: int
+    base_def: int
     max_hp: int
     max_atk: int
     max_def: int
+    magic_resistance: int
     cost: int
     block_cnt: int
     range_data: Optional[RangeResponse] = None
