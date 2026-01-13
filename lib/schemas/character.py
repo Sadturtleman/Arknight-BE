@@ -12,9 +12,13 @@ from lib.schemas.item import ItemResponse
 class CharacterStatResponse(BaseSchema):
     phase: int
     max_level: int
+    base_hp: int
+    base_atk: int
+    base_def: int
     max_hp: int
     max_atk: int
     max_def: int
+    magic_resistance: int
     cost: int
     block_cnt: int
     range_data: Optional[RangeResponse] = None
@@ -43,7 +47,9 @@ class CharacterProfileResponse(CharacterListResponse):
     class_description: Optional[str] = None
     tags: List[TagResponse] = []
     stats: List[CharacterStatResponse] = []
-    
+    item_usage: Optional[str] = None
+    item_desc: Optional[str] = None
+
     @computed_field
     @property
     def portrait_url(self) -> str:
@@ -65,8 +71,6 @@ class CharacterGrowthResponse(BaseSchema):
 # 6. 모듈 및 스토리 (API 4: Modules)
 class CharacterModuleResponse(BaseSchema):
     modules: List[ModuleResponse] = []
-    item_usage: Optional[str] = None
-    item_desc: Optional[str] = None
 
 class CharacterFullDetailResponse(BaseSchema):
     """
