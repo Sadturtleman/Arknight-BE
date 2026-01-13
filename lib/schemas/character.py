@@ -7,7 +7,6 @@ from lib.schemas.common import (
 from lib.schemas.skill import SkillResponse
 from lib.schemas.module import ModuleResponse
 from lib.schemas.item import ItemResponse
-import datetime
 
 # 1. 스탯 정보
 class CharacterStatResponse(BaseSchema):
@@ -90,5 +89,3 @@ class BaseResponse(BaseSchema, Generic[T]):
     data: Optional[T] = None
     status: int = Field(200, description="HTTP code")
     message: str = "OK"
-
-    server_time: str = Field(default_factory=lambda: datetime.now().isoformat())
