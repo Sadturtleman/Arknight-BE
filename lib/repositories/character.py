@@ -23,7 +23,8 @@ class CharacterRepository(BaseRepository[Character]):
     ) -> List[Character]:
         query = select(Character).options(
             selectinload(Character.profession),
-            selectinload(Character.sub_profession)
+            selectinload(Character.sub_profession),
+            selectinload(Character.skins)
         )
 
         if rarity is not None:
