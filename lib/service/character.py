@@ -26,7 +26,7 @@ class CharacterService(BaseService):
 
     # 1. 기본 프로필 조회 (가장 가벼운 첫 번째 응답용)
     async def get_character_profile(self, code: str) -> CharacterProfileResponse:
-        cache_key = f"char:profile:{code}"
+        cache_key = f"char:profile:{code}3242"
 
         async def fetch_data():
             char = await self.repo.get_profile(code)

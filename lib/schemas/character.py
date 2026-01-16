@@ -25,8 +25,6 @@ class CharacterStatResponse(BaseSchema):
     block_cnt: int
     range_data: Optional[RangeResponse] = None
 
-# 요청하신 Base URL 상수화
-CHARPACK_BASE_URL = "https://raw.githubusercontent.com/fexli/ArknightsResource/main/charpack/"
 
 class CharacterListResponse(BaseSchema):
     character_id: int
@@ -35,7 +33,7 @@ class CharacterListResponse(BaseSchema):
     rarity: int
     profession: Optional[ProfessionResponse] = None
     sub_profession: Optional[SubProfessionResponse] = None
-
+    skins: List[CharacterSkinResponse] = Field(default_factory=list, exclude = True)
     # ORM 객체 변환 설정
     model_config = ConfigDict(
         from_attributes=True,
@@ -45,34 +43,18 @@ class CharacterListResponse(BaseSchema):
     @computed_field
     @property
     def skin_url(self) -> str:
-        """
-        [Logic]
-        1. 캐릭터의 스킨 목록 중 가장 적절한(보통 첫 번째 혹은 기본) 스킨의 portrait_id를 추출합니다.
-        2. 스킨 정보가 없으면 캐릭터 코드(code)를 Fallback ID로 사용합니다.
-        3. Kotlin 로직과 동일하게 '#' 문자를 '_'로 치환합니다.
-        """
-        # 1. ID 선정 (Default: 캐릭터 코드)
         target_id = self.code
         
-        # SQLAlchemy selectinload로 로드된 skins 리스트 확인
-        # (characters 테이블과 1:N 관계인 skins 테이블에서 데이터를 가져옴)
-        skins = getattr(self, "skins", [])
-        
-        if skins:
-            # 우선순위: portrait_id가 존재하는 첫 번째 스킨
-            # (실무에서는 is_default 플래그 등을 확인하는 것이 더 정확할 수 있습니다)
-            for skin in skins:
+        # ✅ 이제 skins가 제대로 로드됨
+        if self.skins:
+            for skin in self.skins:
                 if skin.portrait_id:
                     target_id = skin.portrait_id
                     break
         
-        # 2. String Manipulation (Kotlin Logic Porting)
-        # URL에서 #은 Fragment로 인식되므로 파일명 규칙에 맞춰 _로 치환
         safe_file_name = target_id.replace("#", "_")
-        
-        return f"{CHARPACK_BASE_URL}{safe_file_name}.png"
-    
-    
+        return f"{BASE_IMAGE_URL}{safe_file_name}.png"
+
 # 3. 상세 프로필 (API 1: Profile)
 class CharacterProfileResponse(CharacterListResponse):
     class_description: Optional[str] = None
@@ -124,3 +106,12 @@ class BaseResponse(BaseSchema, Generic[T]):
     data: Optional[T] = None
     status: int = Field(200, description="HTTP code")
     message: str = "OK"
+
+class CharacterSkinResponse(BaseSchema):
+    skin_id: int
+    skin_code: str
+    portrait_id: Optional[str] = None
+    avatar_id: Optional[str] = None
+    name_ko: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
